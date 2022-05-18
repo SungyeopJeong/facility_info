@@ -1,11 +1,15 @@
+import 'package:flutter/material.dart';
+
 class Facility {
   final String facilityName;
+  final String category;
   final String operatingTime;
   final String contactNumber;
   final String location;
   final String? extraInfo;
   Facility(
       {required this.facilityName,
+      required this.category,
       required this.operatingTime,
       required this.contactNumber,
       required this.location,
@@ -18,6 +22,7 @@ class Facility {
 Facility _facilityFromJson(Map<String, dynamic> json) {
   return Facility(
       facilityName: json['facilityName'] as String,
+      category: json['category'] as String,
       operatingTime: json['operatingTime'] as String,
       contactNumber: json['contactNumber'] as String,
       location: json['location'] as String,
@@ -26,6 +31,7 @@ Facility _facilityFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _facilityToJson(Facility instance) => <String, dynamic>{
       'facilityName': instance.facilityName,
+      'category': instance.category,
       'operatingTime': instance.operatingTime,
       'contactNumber': instance.contactNumber,
       'location': instance.location,

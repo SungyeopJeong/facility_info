@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'MyNavBar.dart';
+import 'Search.dart';
 
 class KeyPadPage extends StatefulWidget {
   const KeyPadPage({Key? key}) : super(key: key);
@@ -47,10 +48,11 @@ class _KeyPadBodyState extends State<KeyPadBody> {
     return Column(
       children: [
         Container(
-          color: Colors.white,
-          height: widget.height * 264 / 584,
-          child: Center(child: Text(input)),
-        ),
+            color: Colors.white,
+            height: widget.height * 264 / 584,
+            child: Column(
+              children: [const SearchBar(), Text(input)],
+            )),
         SizedBox(
           height: widget.height * 320 / 584,
           child: Center(
