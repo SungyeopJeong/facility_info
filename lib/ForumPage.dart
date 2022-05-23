@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'MyNavBar.dart';
 
 class ForumPage extends StatefulWidget {
@@ -14,6 +15,8 @@ class _ForumPageState extends State<ForumPage> {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
+    SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.white));
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(top: statusBarHeight),

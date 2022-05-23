@@ -13,7 +13,7 @@ class DBHelper {
 
   static void _createDb(Database db) {
     db.execute(
-      "CREATE TABLE Facility(facilityName TEXT, category TEXT, operatingTime TEXT, contactNumber TEXT, location TEXT, extraInfo TEXT)",
+      "CREATE TABLE Facility(facilityName TEXT, category TEXT, categoryIndex TEXT, operatingTime TEXT, contactNumber TEXT, location TEXT, extraInfo TEXT)",
     );
   }
 
@@ -36,6 +36,7 @@ class DBHelper {
       return Facility(
           facilityName: maps[index]['facilityName'],
           category: maps[index]['category'],
+          categoryIndex: maps[index]['categoryIndex'],
           operatingTime: maps[index]['operatingTime'],
           contactNumber: maps[index]['contactNumber'],
           location: maps[index]['location'],
@@ -43,11 +44,29 @@ class DBHelper {
     });
   }
 
-  Future<dynamic> getFacility(String name) async {
+  Future<List<Facility>> getCategoryFacility(String index) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query("Facility",
+        where: 'categoryIndex=?',
+        whereArgs: [index],
+        orderBy: "facilityName ASC");
+    return List.generate(maps.length, (index) {
+      return Facility(
+          facilityName: maps[index]['facilityName'],
+          category: maps[index]['category'],
+          categoryIndex: maps[index]['categoryIndex'],
+          operatingTime: maps[index]['operatingTime'],
+          contactNumber: maps[index]['contactNumber'],
+          location: maps[index]['location'],
+          extraInfo: maps[index]['extraInfo']);
+    });
+  }
+
+  Future<Facility> getFacility(String name) async {
     final db = await database;
     final List<Map<String, dynamic>> maps =
         await db.query('Facility', where: 'facilityName=?', whereArgs: [name]);
-    return maps.isNotEmpty ? maps : null;
+    return Facility.fromJson(maps[0]);
   }
 
   Future<void> updateFacility(Facility facility) async {
@@ -70,6 +89,7 @@ class DBHelper {
 class Facility {
   final String facilityName;
   final String category;
+  String? categoryIndex;
   final String? operatingTime;
   final String? contactNumber;
   final String location;
@@ -77,6 +97,7 @@ class Facility {
   Facility(
       {required this.facilityName,
       required this.category,
+      this.categoryIndex,
       this.operatingTime,
       this.contactNumber,
       required this.location,
@@ -92,8 +113,9 @@ Facility _facilityFromJson(Map<String, dynamic> json) {
   return Facility(
       facilityName: json['facilityName'] as String,
       category: json['category'] as String,
-      operatingTime: json['operatingTime'] as String,
-      contactNumber: json['contactNumber'] as String,
+      categoryIndex: json['categoryIndex'] as String?,
+      operatingTime: json['operatingTime'] as String?,
+      contactNumber: json['contactNumber'] as String?,
       location: json['location'] as String,
       extraInfo: json['extraInfo'] as String?);
 }
@@ -101,6 +123,7 @@ Facility _facilityFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _facilityToJson(Facility instance) => <String, dynamic>{
       'facilityName': instance.facilityName,
       'category': instance.category,
+      'categoryIndex': instance.categoryIndex,
       'operatingTime': instance.operatingTime,
       'contactNumber': instance.contactNumber,
       'location': instance.location,

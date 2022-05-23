@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'MyNavBar.dart';
 import 'Search.dart';
@@ -16,7 +17,8 @@ class _KeyPadPageState extends State<KeyPadPage> {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
-
+    SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.white));
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(top: statusBarHeight),
@@ -41,6 +43,11 @@ class KeyPadBody extends StatefulWidget {
   State<KeyPadBody> createState() => _KeyPadBodyState();
 }
 
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
+}
+
 class _KeyPadBodyState extends State<KeyPadBody> {
   String input = "";
   @override
@@ -51,7 +58,45 @@ class _KeyPadBodyState extends State<KeyPadBody> {
             color: Colors.white,
             height: widget.height * 264 / 584,
             child: Column(
-              children: [const SearchBar(), Text(input)],
+              children: [
+                const SearchBar(),
+                Container(
+                  color: Colors.yellow,
+                  height: 56,
+                ),
+                GestureDetector(
+                    onLongPress: () {
+                      Clipboard.getData(Clipboard.kTextPlain).then((value) {
+                        setState(() {
+                          input = value?.text ?? input;
+                        });
+                      });
+                    },
+                    child: Container(
+                      color: Colors.green,
+                      width: widget.width,
+                      height: widget.height * 264 / 584 - 56 * 2 - 90,
+                      child: Align(
+                        child: Container(
+                            width: widget.width,
+                            height: 24,
+                            padding: const EdgeInsets.only(left: 20, right: 20),
+                            child: FittedBox(
+                                fit: BoxFit.contain,
+                                child: Text(
+                                  input,
+                                ))),
+                      ),
+                    )),
+                Container(
+                  color: Colors.red,
+                  height: 60,
+                ),
+                Container(
+                  color: Colors.yellow,
+                  height: 30,
+                )
+              ],
             )),
         SizedBox(
           height: widget.height * 320 / 584,

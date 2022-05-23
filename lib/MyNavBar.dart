@@ -103,16 +103,22 @@ class _MyNavBarState extends State<MyNavBar> {
                               color: active
                                   ? const Color(0xff0075E8)
                                   : const Color(0xffC4C4C4)))),
-              Text(
-                label,
-                textScaleFactor: 1.0,
-                style: TextStyle(
-                    color: active
-                        ? const Color(0xff0075E8)
-                        : const Color(0xffC4C4C4),
-                    fontSize: 10,
-                    height: 1.2,
-                    fontFamily: 'Noto_Sans_KR'),
+              SizedBox(
+                height: 12,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    label,
+                    textScaleFactor: 1.0,
+                    style: TextStyle(
+                        color: active
+                            ? const Color(0xff0075E8)
+                            : const Color(0xffC4C4C4),
+                        fontSize: 10,
+                        height: 1.0,
+                        fontFamily: 'Noto_Sans_KR'),
+                  ),
+                ),
               ),
               const SizedBox(
                 height: 12,
