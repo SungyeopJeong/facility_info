@@ -1,8 +1,10 @@
+import 'package:facility_info/facility.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
-import 'MyNavBar.dart';
-import 'Search.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:facility_info/MyNavBar.dart';
+import 'package:facility_info/Search.dart';
 
 class KeyPadPage extends StatefulWidget {
   const KeyPadPage({Key? key}) : super(key: key);
@@ -43,15 +45,96 @@ class KeyPadBody extends StatefulWidget {
   State<KeyPadBody> createState() => _KeyPadBodyState();
 }
 
-class AlwaysDisabledFocusNode extends FocusNode {
-  @override
-  bool get hasFocus => false;
-}
-
 class _KeyPadBodyState extends State<KeyPadBody> {
   String input = "";
+  bool needToCheck = true;
+  Widget progressIndicator() {
+    return Container(
+        color: Colors.white,
+        width: widget.width,
+        height: widget.height,
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              CircularProgressIndicator(),
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                "loading the data...",
+                textScaleFactor: 1.0,
+                style: TextStyle(
+                    color: Color(0xffC4C4C4),
+                    fontSize: 12,
+                    height: 1.0,
+                    fontFamily: 'Noto_Sans_KR'),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ]));
+  }
+
+  Facility facilityFromDoc(QueryDocumentSnapshot doc, String categoryIndex) {
+    return Facility(
+        facilityName: doc['facilityName'] as String,
+        category: doc['category'] as String,
+        categoryIndex: categoryIndex,
+        id: doc.id,
+        operatingTime: doc['operatingTime'] as String?,
+        contactNumber: doc['contactNumber'] as String?,
+        location: doc['location'] as String,
+        extraInfo: doc['extraInfo'] as String?);
+  }
+
+  Future<void> getAllData() async {
+    for (int index = 1; index <= 11; index++) {
+      String categoryIndex =
+          'category' + (index < 10 ? '0' + index.toString() : index.toString());
+      String path = '/facility/' + categoryIndex + '/' + categoryIndex;
+      await FirebaseFirestore.instance
+          .collection(path)
+          .orderBy('facilityName')
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          DBHelper dbHelper = DBHelper();
+          Facility facility = facilityFromDoc(doc, categoryIndex);
+          dbHelper.insertFacility(facility);
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    DBHelper dbHelper = DBHelper();
+    if (needToCheck == true) {
+      return FutureBuilder(
+          future: dbHelper.checkEmpty(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return progressIndicator();
+            }
+            if (snapshot.data == true) {
+              return FutureBuilder(
+                  future: getAllData(),
+                  builder: (context, snapshot) {
+                    needToCheck = false;
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return progressIndicator();
+                    }
+                    return keyPad();
+                  });
+            } else {
+              needToCheck = false;
+              return keyPad();
+            }
+          });
+    } else {
+      return keyPad();
+    }
+  }
+
+  Widget keyPad() {
     return Column(
       children: [
         Container(

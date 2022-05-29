@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'InfoPage.dart';
-import 'KeyPadPage.dart';
-import 'ForumPage.dart';
+import 'package:facility_info/pages/InfoPage.dart';
+import 'package:facility_info/pages/KeyPadPage.dart';
+import 'package:facility_info/pages/ForumPage.dart';
 
 class SlidePageRoute extends PageRouteBuilder {
   final dynamic page;
@@ -42,22 +42,20 @@ class _MyNavBarState extends State<MyNavBar> {
         children: [
           GestureDetector(
               onTap: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.popUntil(context, (route) => route.isFirst);
                 Navigator.push(context, SlidePageRoute(page: const InfoPage()));
               },
               child: buildNavBar("시설 정보", widget.activeIndex == 0, 1)),
           GestureDetector(
               onTap: () {
-                Navigator.of(context)
-                    .popUntil((route) => route.isCurrent == route.isFirst);
-                Navigator.pop(context);
-                Navigator.push(
+                Navigator.popUntil(context, (route) => route.isFirst);
+                Navigator.pushReplacement(
                     context, SlidePageRoute(page: const KeyPadPage()));
               },
               child: buildNavBar("키패드", widget.activeIndex == 1, 2)),
           GestureDetector(
               onTap: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.popUntil(context, (route) => route.isFirst);
                 Navigator.push(
                     context, SlidePageRoute(page: const ForumPage()));
               },

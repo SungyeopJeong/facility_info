@@ -13,7 +13,7 @@ class DBHelper {
 
   static void _createDb(Database db) {
     db.execute(
-      "CREATE TABLE Facility(facilityName TEXT, category TEXT, categoryIndex TEXT, operatingTime TEXT, contactNumber TEXT, location TEXT, extraInfo TEXT)",
+      "CREATE TABLE Facility(facilityName TEXT, category TEXT, categoryIndex TEXT, id TEXT, operatingTime TEXT, contactNumber TEXT, location TEXT, extraInfo TEXT)",
     );
   }
 
@@ -21,6 +21,13 @@ class DBHelper {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query("Facility");
     return maps.isEmpty ? true : false;
+  }
+
+  Future<bool> checkIdAlreadyExits(String id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps =
+        await db.query('Facility', where: 'id=?', whereArgs: [id]);
+    return maps.isEmpty ? false : true;
   }
 
   Future<void> insertFacility(Facility facility) async {
@@ -37,6 +44,7 @@ class DBHelper {
           facilityName: maps[index]['facilityName'],
           category: maps[index]['category'],
           categoryIndex: maps[index]['categoryIndex'],
+          id: maps[index]['id'],
           operatingTime: maps[index]['operatingTime'],
           contactNumber: maps[index]['contactNumber'],
           location: maps[index]['location'],
@@ -55,6 +63,7 @@ class DBHelper {
           facilityName: maps[index]['facilityName'],
           category: maps[index]['category'],
           categoryIndex: maps[index]['categoryIndex'],
+          id: maps[index]['id'],
           operatingTime: maps[index]['operatingTime'],
           contactNumber: maps[index]['contactNumber'],
           location: maps[index]['location'],
@@ -62,22 +71,22 @@ class DBHelper {
     });
   }
 
-  Future<Facility> getFacility(String name) async {
+  Future<Facility> getFacility(String id) async {
     final db = await database;
     final List<Map<String, dynamic>> maps =
-        await db.query('Facility', where: 'facilityName=?', whereArgs: [name]);
+        await db.query('Facility', where: 'id=?', whereArgs: [id]);
     return Facility.fromJson(maps[0]);
   }
 
-  Future<void> updateFacility(Facility facility) async {
+  Future<void> updateFacility(String id, Facility newFacility) async {
     final db = await database;
-    await db.update('Facility', facility.toJson(),
-        where: 'facilityName=?', whereArgs: [facility.facilityName]);
+    await db.update('Facility', newFacility.toJson(),
+        where: 'id=?', whereArgs: [id]);
   }
 
-  Future<void> deleteFacility(String name) async {
+  Future<void> deleteFacility(String id) async {
     final db = await database;
-    await db.delete('Facility', where: 'facilityName=?', whereArgs: [name]);
+    await db.delete('Facility', where: 'id=?', whereArgs: [id]);
   }
 
   Future<void> deleteAllFacility() async {
@@ -89,7 +98,8 @@ class DBHelper {
 class Facility {
   final String facilityName;
   final String category;
-  String? categoryIndex;
+  String? categoryIndex; // only for SQLite
+  String id;
   final String? operatingTime;
   final String? contactNumber;
   final String location;
@@ -98,6 +108,7 @@ class Facility {
       {required this.facilityName,
       required this.category,
       this.categoryIndex,
+      required this.id,
       this.operatingTime,
       this.contactNumber,
       required this.location,
@@ -114,6 +125,7 @@ Facility _facilityFromJson(Map<String, dynamic> json) {
       facilityName: json['facilityName'] as String,
       category: json['category'] as String,
       categoryIndex: json['categoryIndex'] as String?,
+      id: json['id'] as String,
       operatingTime: json['operatingTime'] as String?,
       contactNumber: json['contactNumber'] as String?,
       location: json['location'] as String,
@@ -124,6 +136,7 @@ Map<String, dynamic> _facilityToJson(Facility instance) => <String, dynamic>{
       'facilityName': instance.facilityName,
       'category': instance.category,
       'categoryIndex': instance.categoryIndex,
+      'id': instance.id,
       'operatingTime': instance.operatingTime,
       'contactNumber': instance.contactNumber,
       'location': instance.location,
